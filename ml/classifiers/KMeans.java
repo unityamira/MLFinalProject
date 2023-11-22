@@ -1,21 +1,28 @@
 package ml.classifiers;
 
+import java.util.ArrayList;
+import java.util.Random;
+
 import ml.data.DataSet;
 import ml.data.Example;
 
 public class KMeans implements Classifier{
     int k;
     int iterations;
+    ArrayList<Example> centroids;
+    DataSet data;
 
     public KMeans(int k){
         this.k = k;
         this.iterations = 50;
+        centroids = new ArrayList<>();
     }
 
     @Override
     public void train(DataSet data) {
         // initalize centers randomly
-
+        this.data = data;
+        this.centroids = this.initalizeCentroids();
 
         for(int i=0;i<iterations;i++){
             // assign points to nearest center
@@ -24,8 +31,23 @@ public class KMeans implements Classifier{
         }
     }
 
-    private void initalizeCentroids(){
+    private ArrayList<Example> initalizeCentroids(){
+        Random rand = new Random();
+        ArrayList<Example> curCentroids = new ArrayList<>();
 
+        for(int i=0;i<k;i++){
+            Example newCentroid = new Example();
+            for(Integer feature : data.getAllFeatureIndices()){
+                int featureValue = rand.nextInt(1);
+                if(featureValue > 0){
+                    newCentroid.addFeature(feature, featureValue);
+                }        
+            }
+
+            curCentroids.add(newCentroid);
+        }
+
+        return curCentroids;
     }
 
     private void recalculateCentroid(){
@@ -69,7 +91,7 @@ public class KMeans implements Classifier{
         }
 
         denominator = Math.sqrt(left)*Math.sqrt(right);
-        return numerator/denominator;
+        return 1-numerator/denominator;
     }
 
     @Override
