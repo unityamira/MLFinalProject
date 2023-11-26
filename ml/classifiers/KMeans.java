@@ -1,48 +1,51 @@
 package ml.classifiers;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Random;
-
-import ml.data.DataSet;
-import ml.data.Example;
+import java.util.*;
+import ml.data.*;
 
 public class KMeans{
-    int k;
-    int iterations;
-    DataSet data;
-
-    ArrayList<Example> centroids;
-    HashMap<Integer, ArrayList> associatedPoints;
-
-    private Integer COSINE = 0;
-    private Integer EUCLIDEAN = 0;
+    private int k;
+    private int iterations;
     private int distChoice;
+    private DataSet data;
+
+    ArrayList<Centroid> centroids;
+    ArrayList<Example> examples;
+    HashMap<Integer, Double> featureMins;
+    HashMap<Integer, Double> featureMaxes;
+
+    public static final int COSINE_DIST = 0;
+    public static final int EUCLIDEAN_DIST = 0;
 
     public KMeans(int k){
         this.k = k;
         this.iterations = 50;
         this.distChoice = 0;
         this.centroids = new ArrayList<>();
+        this.featureMins = new HashMap<>();
+        this.featureMaxes = new HashMap<>();
     }
 
     public void train(DataSet data) {
         // initalize centers randomly
         this.data = data;
-        this.centroids = this.initalizeCentroids();
+        this.examples = data.getData();
+        this.initalizeCentroids();
 
         for(int iteration=0;iteration<iterations;iteration++){
-            ArrayList<Example> examples = data.getData();
+            // wipe the slate clean
+            Collections.shuffle(examples);
+            for(int i=0;i<centroids.size();i++){
+                centroids.get(i).clearExamples();
+            }
 
             // assign points to nearest center
             for(int i=0;i<examples.size();i++){
-                int nearestCent = (int) nearestCentroid(examples.get(i));
-                ArrayList<Example> curPoints = associatedPoints.get(nearestCent);
-                curPoints.add(examples.get(i));
-                associatedPoints.put(nearestCent, curPoints);
+                Example curExample = examples.get(i);
+                this.nearestCentroid(curExample).addExample(curExample);
             }
 
-            // recalculate centers
+            // for each centroid, recalculate
             for(int i=0;i<centroids.size();i++){
                 this.recalculateCentroid(centroids.get(i));
             }
@@ -50,68 +53,86 @@ public class KMeans{
     }
 
     /**
-     * 
-     * @param e
-     * @return
+     * For all centroids, find the one closest to the given datapoint
+     * @param e a particular datapoint
+     * @return nearest Centroid
      */
-    private double nearestCentroid(Example e){
+    private Centroid nearestCentroid(Example e){
         double minimumDistance = Double.MAX_VALUE;
-        Example nearest = null;
+        Centroid nearest = null;
 
-        for (Example centroid : centroids) {
+        for (Centroid curCentroid : centroids) {
             double currentDistance = 0;
 
-            if(distChoice == COSINE){
-                currentDistance = cosDist(e, centroid);
-            }else if(distChoice == EUCLIDEAN){
-                currentDistance = eucDist(e, centroid);
+            if(distChoice == COSINE_DIST){
+                currentDistance = cosineDistance(e, curCentroid);
+            }else if(distChoice == EUCLIDEAN_DIST){
+                currentDistance = euclideanDist(e, curCentroid);
             }
-            
 
             if (currentDistance < minimumDistance) {
                 minimumDistance = currentDistance;
-                nearest = centroid;
+                nearest = curCentroid;
             }
         }
 
-        return nearest.getLabel();
+        return nearest;
     }
 
     /**
-     * 
-     * @return
+     * Instantiates k random centroids
      */
-    public ArrayList<Example> initalizeCentroids(){
+    public void initalizeCentroids(){
         Random rand = new Random();
-        ArrayList<Example> curCentroids = new ArrayList<>();
+        this.findFeatureRange();
 
         for(int i=0;i<k;i++){
-            Example newCentroid = new Example();
-            ArrayList<Example> points = new ArrayList<>();
-            associatedPoints.put(i, points);
-            newCentroid.setLabel(i);
-
+            Centroid curCentroid = new Centroid();
+            // for each feature, randomly assign within training range
             for(Integer feature : data.getAllFeatureIndices()){
-                int featureValue = rand.nextInt(1);
-                if(featureValue > 0){
-                    newCentroid.addFeature(feature, featureValue);
-                }        
+                double featureValue = rand.nextDouble(featureMaxes.get(feature)-featureMins.get(feature));
+                if(featureValue != 0){
+                    curCentroid.addFeature(feature, featureValue);
+                }  
             }
 
-            curCentroids.add(newCentroid);
+            centroids.add(curCentroid);
         }
-
-        return curCentroids;
     }
 
     /**
-     * 
-     * @param e
+     * For each feature, finds minimum and maximum value within dataset
      */
-    private void recalculateCentroid(Example e){
-        ArrayList<Example> points = associatedPoints.get(e.getLabel());
+    private void findFeatureRange(){
+        // for all examples and for all feature values, find the min and max value
+        for(int i=0;i<examples.size();i++){
+            Example curExample = examples.get(i);
+            
+            for(Integer curFeature : curExample.getFeatureSet()){
+                if(featureMins.containsKey(curFeature)){
+                    featureMins.put(curFeature, Math.min(curExample.getFeature(curFeature), featureMins.get(curFeature)));
+                }else{
+                    featureMins.put(curFeature, curExample.getFeature(curFeature));
+                }
+
+                if(featureMaxes.containsKey(curFeature)){
+                    featureMaxes.put(curFeature, Math.max(curExample.getFeature(curFeature), featureMaxes.get(curFeature)));
+                }else{
+                    featureMaxes.put(curFeature, curExample.getFeature(curFeature));
+                }
+            }
+        }
+    }
+
+    /**
+     * Recalculates the centroid given all its associated points
+     * @param curCentroid centroid to be recalculated
+     */
+    private void recalculateCentroid(Centroid curCentroid){
+        ArrayList<Example> points = curCentroid.getAssociatedPoints();
         HashMap<Integer, Double> averages = new HashMap<>();
         
+        // for all points, sum each feature value
         for(int i=0;i<points.size();i++){
             Example curPoint = points.get(i);
             for(Integer feature : curPoint.getFeatureSet()){
@@ -123,15 +144,21 @@ public class KMeans{
             }
         }
 
+        // for all features, divide by the number of points
         for(Integer feature : data.getAllFeatureIndices()){
             if(averages.containsKey(feature)){
                 averages.put(feature, averages.get(feature)/points.size());
             }
         }
+
+        // set each centroid feature to be the average
+        for(Integer feature: curCentroid.getFeatureSet()){
+            curCentroid.setFeature(feature, averages.get(feature));
+        }
     }
 
     /**
-     * Choose type of distance used to calculate closes point
+     * Choose type of distance used to calculate closest point
      * @param distChoice
      */
     public void chooseDistance(int distChoice){
@@ -139,12 +166,12 @@ public class KMeans{
     }
 
     /**
-     * 
+     * For two examples, calculates the Euclidean Distance between them
      * @param e1
      * @param e2
-     * @return
+     * @return Euclidean Distance
      */
-    public double eucDist(Example e1, Example e2){
+    public double euclideanDist(Example e1, Example e2){
         double sum = 0;
 
         for (Integer feature : e1.getFeatureSet()) {
@@ -159,12 +186,12 @@ public class KMeans{
     }
 
     /**
-     * 
+     * For two examples, calculates the Cosine similarity between them (range of 0 to 1)
      * @param e1
      * @param e2
-     * @return
+     * @return Cosine Distance
      */
-    public double cosDist(Example e1, Example e2){
+    public double cosineDistance(Example e1, Example e2){
         double numerator = 0;
         double left = 0;
         double right = 0;
@@ -206,9 +233,9 @@ public class KMeans{
         System.out.print("E2: ");
         System.out.println(e2);
         System.out.print("Cosine Distance:");
-        System.out.println(model.cosDist(e1, e2));
+        System.out.println(model.cosineDistance(e1, e2));
         System.out.print("Euclidean Distance:");
-        System.out.println(model.eucDist(e1, e2));
+        System.out.println(model.euclideanDist(e1, e2));
         System.out.println("");
 
         System.out.print("E1: ");
@@ -216,9 +243,9 @@ public class KMeans{
         System.out.print("E2: ");
         System.out.println(e3);
         System.out.print("Cosine Distance:");
-        System.out.println(model.cosDist(e1, e3));
+        System.out.println(model.cosineDistance(e1, e3));
         System.out.print("Euclidean Distance:");
-        System.out.println(model.eucDist(e1, e3));
+        System.out.println(model.euclideanDist(e1, e3));
 
 
         for(int i=0;i<1;i++){
@@ -229,9 +256,9 @@ public class KMeans{
             System.out.println(ex2.toString(wineDataSet.getFeatureMap())+"\n");
 
             System.out.print("Cosine Distance:");
-            System.out.println(model.cosDist(ex1, ex2));
+            System.out.println(model.cosineDistance(ex1, ex2));
             System.out.print("Euclidean Distance:");
-            System.out.println(model.eucDist(ex1, ex2));
+            System.out.println(model.euclideanDist(ex1, ex2));
         }
     }
 }

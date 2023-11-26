@@ -4,6 +4,10 @@ import java.util.*;
 public class Centroid extends Example{
     ArrayList<Example> associatedExamples;
 
+    public Centroid(){
+        associatedExamples = new ArrayList<>();
+    }
+
     public Centroid(ArrayList<Example> associatedExamples){
         this.associatedExamples = associatedExamples;
     }
@@ -14,5 +18,9 @@ public class Centroid extends Example{
 
     public void clearExamples(){
         associatedExamples.clear();
+    }
+
+    public ArrayList<Example> getAssociatedPoints(){
+        return this.associatedExamples;
     }
 }
