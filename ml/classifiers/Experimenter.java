@@ -8,12 +8,11 @@ import ml.data.Example;
 
 public class Experimenter {
     public static void main(String[] args){
+        /*
         Random rand = new Random();
 
-        KMeans model = new KMeans(3);
-        DataSet wineDataSet = new DataSet("data/wines.train", DataSet.TEXTFILE);
-        DataSet simpleDataSet = new DataSet("data/simple.csv", DataSet.CSVFILE);
-        ArrayList<Example> examples = wineDataSet.getData();
+        
+        
 
         Example e1 = simpleDataSet.getData().get(0);
         Example e2 = simpleDataSet.getData().get(1);
@@ -50,5 +49,12 @@ public class Experimenter {
             System.out.print("Euclidean Distance:");
             System.out.println(model.euclideanDist(ex1, ex2));
         }
+        */
+
+        DataSet wineDataSet = new DataSet("data/wines.train", DataSet.TEXTFILE);
+        DataSet simpleDataSet = new DataSet("data/simple.csv", DataSet.CSVFILE);
+        ArrayList<Example> examples = wineDataSet.getData();
+        KMeans model = new KMeans(3);
+        model.train(wineDataSet);
     }
 }

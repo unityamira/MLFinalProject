@@ -49,6 +49,8 @@ public class KMeans{
             for(int i=0;i<centroids.size();i++){
                 this.recalculateCentroid(centroids.get(i));
             }
+
+            System.out.println("Iteration");
         }
     }
 
@@ -90,7 +92,7 @@ public class KMeans{
             Centroid curCentroid = new Centroid();
             // for each feature, randomly assign within training range
             for(Integer feature : data.getAllFeatureIndices()){
-                double featureValue = rand.nextDouble(featureMaxes.get(feature)-featureMins.get(feature));
+                double featureValue = Math.random() * (featureMaxes.get(feature)-featureMins.get(feature)) + featureMins.get(feature);
                 if(featureValue != 0){
                     curCentroid.addFeature(feature, featureValue);
                 }  
@@ -153,7 +155,9 @@ public class KMeans{
 
         // set each centroid feature to be the average
         for(Integer feature: curCentroid.getFeatureSet()){
-            curCentroid.setFeature(feature, averages.get(feature));
+            if(averages.containsKey(feature)){
+                curCentroid.setFeature(feature, averages.get(feature));
+            }
         }
     }
 
