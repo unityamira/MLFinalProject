@@ -85,7 +85,6 @@ public class KMeans{
      * Instantiates k random centroids
      */
     public void initalizeCentroids(){
-        Random rand = new Random();
         this.findFeatureRange();
 
         for(int i=0;i<k;i++){
