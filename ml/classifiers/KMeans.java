@@ -220,9 +220,27 @@ public class KMeans implements Classifier{
         denominator = Math.sqrt(left)*Math.sqrt(right);
         return 1-numerator/denominator;
     }
+
+    @Override
+    public double classify(Example example) {
+        return nearestCentroid(example).getLabel();
+    }
+
+    @Override
+    public double confidence(Example example) {
+        double curDistance = 0;
+
+        if(this.distChoice == COSINE_DIST){
+            curDistance = cosineDistance(example, nearestCentroid(example));
+        }else{
+            curDistance = euclideanDist(example, nearestCentroid(example));
+        }
+
+        return curDistance;
+    }
     
     /**
-     * Evaluation Function
+     * EVALUATION FUNCTION
      * For a labeled data and a given centroid, find the purity, aka
      * the proportion of the dominant class in the cluster
      * @param curCentroid
@@ -252,7 +270,7 @@ public class KMeans implements Classifier{
     }
 
     /**
-     * Evaluation Function
+     * EVALUATION FUNCTION
      * Find the average purity across all centroids in model
      * @return average purity of whole model
      */
@@ -266,7 +284,7 @@ public class KMeans implements Classifier{
     }
 
     /**
-     * Evaluation Function
+     * EVALUATION FUNCTION
      * For a given centroid and labeled data, evaluates entropy of the cluster
      * Entropy is a measure of disorder/randomness, lower is better for us
      * Assumes labeled data
@@ -289,14 +307,14 @@ public class KMeans implements Classifier{
         }
 
         for(Double value : labelProportions.values()){
-            entropy += (value/size)*(Math.log(value/size));
+            entropy -= (value/size)*(Math.log(value/size));
         }
 
-        return -entropy;
+        return entropy;
     }
 
     /**
-     * Evaluation Function
+     * EVALUATION FUNCTION
      * Find the average entropy across all centroids in model
      * Assumes labeled data
      * @return entropy across total model
@@ -310,21 +328,77 @@ public class KMeans implements Classifier{
         return average/centroids.size();
     }
 
-    @Override
-    public double classify(Example example) {
-        return nearestCentroid(example).getLabel();
+    /**
+     * EVALUATION FUNCTION
+     * For a particular centroid, calculate the distance of all points from the center, SSE
+     * @param curCentroid
+     * @return
+     */
+    public double centroidSSE(Centroid curCentroid){
+        ArrayList<Example> curPoints = curCentroid.getAssociatedPoints();
+        double sse = 0.0;
+
+        for(int i=0; i<curPoints.size(); i++){
+            if(distChoice == COSINE_DIST){
+                sse += this.cosineDistance(curPoints.get(i), curCentroid);
+            }else{
+                sse += this.euclideanDist(curPoints.get(i), curCentroid);
+            }
+        }
+        return sse;
     }
 
-    @Override
-    public double confidence(Example example) {
-        double curDistance = 0;
-
-        if(this.distChoice == COSINE_DIST){
-            curDistance = cosineDistance(example, nearestCentroid(example));
-        }else{
-            curDistance = euclideanDist(example, nearestCentroid(example));
+    /**
+     * EVALUATION FUNCTION
+     * Calculate average SSE for all centroids
+     * @return mean SSE for entire model
+     */
+    public double averageSSE(){
+        double average = 0.0;
+        for(int i=0;i<centroids.size();i++){
+            average += centroidSSE(centroids.get(i));
         }
 
-        return curDistance;
+        return average/centroids.size();
+    }
+
+    /**
+     * EVALUATION FUNCTION
+     * Score is between -1 (poorly defined cluster) and 1 (well defined cluster)
+     * @param curExample
+     * @return silhouette score for point
+     */
+    private double silhouetteScore(Example curExample){
+        return 0.0;
+    }
+
+    /**
+     * EVALUATION FUNCTION
+     * For a centroid, find the silhouette score across all all points in centroid
+     * @param curCentroid centroid in question
+     * @return silhouette score for centroid
+     */
+    public double centroidSilhouette(Centroid curCentroid){
+        ArrayList<Example> curPoints = curCentroid.getAssociatedPoints();
+        double silhouetteScore = 0.0;
+
+        for(int i=0;i<curPoints.size();i++){
+            silhouetteScore += this.silhouetteScore(curPoints.get(i));
+        }
+
+        return silhouetteScore/curPoints.size();
+    }
+
+    /**
+     * Evaluate Silhouette Score for all centroids
+     * @return model total Silhouette Score
+     */
+    public double averageSilhouetteScore(){
+        double average = 0.0;
+        for(int i=0;i<centroids.size();i++){
+            average += centroidSilhouette(centroids.get(i));
+        }
+
+        return average/centroids.size();
     }
 }
