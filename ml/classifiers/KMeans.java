@@ -2,6 +2,7 @@ package ml.classifiers;
 
 import java.util.*;
 import ml.data.*;
+import ml.utils.CentroidDist;
 
 public class KMeans implements Classifier{
     private int k;
@@ -79,6 +80,27 @@ public class KMeans implements Classifier{
         }
 
         return nearest;
+    }
+
+    /**
+     * For a data point, return the 2nd nearest centroid
+     * Used in silhouette analysis
+     * @param e example to be examined
+     * @return 2nd nearest centroid
+     */
+    private Centroid nextNearestCentroid(Example e){
+        ArrayList<CentroidDist> curList = new ArrayList<>();
+
+        for (Centroid curCentroid : centroids) {
+            if(distChoice == COSINE_DIST){
+                curList.add(new CentroidDist(curCentroid, cosineDistance(e, curCentroid)));
+            }else if(distChoice == EUCLIDEAN_DIST){
+                curList.add(new CentroidDist(curCentroid, euclideanDist(e, curCentroid)));
+            }
+        }
+
+        curList.sort(null);
+        return curList.get(1).getCentroid();
     }
 
     /**
@@ -364,17 +386,44 @@ public class KMeans implements Classifier{
 
     /**
      * EVALUATION FUNCTION
-     * Score is between -1 (poorly defined cluster) and 1 (well defined cluster)
+     * Score between -1 (poorly defined cluster) and 1 (well defined cluster)
      * @param curExample
      * @return silhouette score for point
      */
-    private double silhouetteScore(Example curExample){
-        return 0.0;
+    private double silhouetteScore(Centroid curCentroid, Example curExample){
+        ArrayList<Example> curPoints = curCentroid.getAssociatedPoints();
+        double intraDist = 0.0;
+        double interDist = 0.0;
+
+        for(int i=0;i<curPoints.size();i++){
+            if(distChoice == EUCLIDEAN_DIST){
+                intraDist += euclideanDist(curPoints.get(i), curExample);
+            }else{
+                intraDist += cosineDistance(curPoints.get(i), curExample);
+            }
+        }
+
+        Centroid nextNearest = this.nextNearestCentroid(curExample);
+        ArrayList<Example> nextNearestPoints = nextNearest.getAssociatedPoints();
+
+        for(int i=0;i<nextNearestPoints.size();i++){
+            if(distChoice == EUCLIDEAN_DIST){
+                intraDist += euclideanDist(nextNearestPoints.get(i), curExample);
+            }else{
+                intraDist += cosineDistance(nextNearestPoints.get(i), curExample);
+            }
+        }
+
+        intraDist /= curPoints.size();
+        interDist /= curPoints.size();
+
+        return (interDist - intraDist) / Math.max(intraDist, interDist);
     }
 
     /**
      * EVALUATION FUNCTION
      * For a centroid, find the silhouette score across all all points in centroid
+     * Score between -1 (poorly defined cluster) and 1 (well defined cluster)
      * @param curCentroid centroid in question
      * @return silhouette score for centroid
      */
@@ -383,7 +432,7 @@ public class KMeans implements Classifier{
         double silhouetteScore = 0.0;
 
         for(int i=0;i<curPoints.size();i++){
-            silhouetteScore += this.silhouetteScore(curPoints.get(i));
+            silhouetteScore += this.silhouetteScore(curCentroid, curPoints.get(i));
         }
 
         return silhouetteScore/curPoints.size();
