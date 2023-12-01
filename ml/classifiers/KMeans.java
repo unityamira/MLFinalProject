@@ -219,4 +219,90 @@ public class KMeans{
         denominator = Math.sqrt(left)*Math.sqrt(right);
         return 1-numerator/denominator;
     }
+    
+    /**
+     * Evaluation Function
+     * For a labeled data and a given centroid, find the purity, aka
+     * the proportion of the dominant class in the cluster
+     * @param curCentroid
+     * @return proportion of the biggest label in cluster
+     */
+    public double centroidPurity(Centroid curCentroid){
+        HashMap<Double, Double> labelProportions = new HashMap<>();
+        ArrayList<Example> curPoints = curCentroid.getAssociatedPoints();
+        double majority = 0.0;
+
+        for(int i=0;i<curPoints.size();i++){
+            double curLabel = curPoints.get(i).getLabel();
+            if(labelProportions.containsKey(curLabel)){
+                labelProportions.put(curLabel, labelProportions.get(curLabel)+1.0);
+            }else{
+                labelProportions.put(curLabel, 1.0);
+            }
+        }
+
+        for(Double value : labelProportions.values()){
+            if(value/curPoints.size() > majority){
+                majority = value/curPoints.size();
+            }
+        }
+
+        return majority;
+    }
+
+    /**
+     * Evaluation Function
+     * Find the average purity across all centroids in model
+     * @return average purity of whole model
+     */
+    public double averagePurity(){
+        double average = 0.0;
+        for(int i=0;i<centroids.size();i++){
+            average += centroidPurity(centroids.get(i));
+        }
+
+        return average/centroids.size();
+    }
+
+    /**
+     * Evaluation Function
+     * For a given centroid, evaluates entropy of the cluster
+     * @param curCentroid
+     * @return entropy for given centroid
+     */
+    public double centroidEntropy(Centroid curCentroid){
+        HashMap<Double, Double> labelProportions = new HashMap<>();
+        ArrayList<Example> curPoints = curCentroid.getAssociatedPoints();
+        double entropy = 0.0;
+        int size = curPoints.size();
+
+        for(int i=0;i<curPoints.size();i++){
+            double curLabel = curPoints.get(i).getLabel();
+            if(labelProportions.containsKey(curLabel)){
+                labelProportions.put(curLabel, labelProportions.get(curLabel)+1.0);
+            }else{
+                labelProportions.put(curLabel, 1.0);
+            }
+        }
+
+        for(Double value : labelProportions.values()){
+            entropy += (value/size)*(Math.log(value/size));
+        }
+
+        return -entropy;
+    }
+
+    /**
+     * Evaluation Function
+     * Find the average entropy across all centroids in model
+     * @return entropy across total model
+     */
+    public double averageEntropy(){
+        double average = 0.0;
+        for(int i=0;i<centroids.size();i++){
+            average += centroidEntropy(centroids.get(i));
+        }
+
+        return average/centroids.size();
+    }
 }

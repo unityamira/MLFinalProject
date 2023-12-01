@@ -56,5 +56,11 @@ public class Experimenter {
         ArrayList<Example> examples = wineDataSet.getData();
         KMeans model = new KMeans(3);
         model.train(wineDataSet);
+
+        // purity of clusters, entropy
+        // sum of squared error/elbow method for number of clusters
+        // internal similarity
+        // finding the best k
+        // add the furthest centers heuristic
     }
 }
