@@ -8,6 +8,7 @@ public class KMeans implements Classifier{
     private int k;
     private int iterations;
     private int distChoice;
+    private int initChoice;
     private DataSet data;
 
     ArrayList<Centroid> centroids;
@@ -16,12 +17,16 @@ public class KMeans implements Classifier{
     HashMap<Integer, Double> featureMaxes;
 
     public static final int COSINE_DIST = 0;
-    public static final int EUCLIDEAN_DIST = 0;
+    public static final int EUCLIDEAN_DIST = 1;
+
+    public static final int RANDOM_INIT = 0;
+    public static final int FURTHEST_CENT_INIT = 1;
 
     public KMeans(int k){
         this.k = k;
         this.iterations = 50;
-        this.distChoice = 0;
+        this.distChoice = EUCLIDEAN_DIST;
+        this.initChoice = RANDOM_INIT;
         this.centroids = new ArrayList<>();
         this.featureMins = new HashMap<>();
         this.featureMaxes = new HashMap<>();
@@ -31,7 +36,13 @@ public class KMeans implements Classifier{
         // initalize centers randomly
         this.data = data;
         this.examples = data.getData();
-        this.initalizeCentroids();
+
+        if(initChoice == RANDOM_INIT){
+            this.initalizeRandom();
+        }else if(initChoice == FURTHEST_CENT_INIT){
+            this.initalizeFurthest();
+        }
+        
 
         for(int iteration=0;iteration<iterations;iteration++){
             // wipe the slate clean
@@ -85,7 +96,7 @@ public class KMeans implements Classifier{
     /**
      * For a data point, return the 2nd nearest centroid
      * Used in silhouette analysis
-     * @param e example to be examined
+     * @param e example you're interested in
      * @return 2nd nearest centroid
      */
     private Centroid nextNearestCentroid(Example e){
@@ -106,7 +117,7 @@ public class KMeans implements Classifier{
     /**
      * Instantiates k random centroids
      */
-    public void initalizeCentroids(){
+    public void initalizeRandom(){
         this.findFeatureRange();
 
         for(int i=0;i<k;i++){
@@ -121,6 +132,18 @@ public class KMeans implements Classifier{
             }
 
             centroids.add(curCentroid);
+        }
+    }
+
+    /**
+     * Initalizes k centroids using furthest centers heuristic
+     */
+    public void initalizeFurthest(){
+        // choose random point 
+
+        // for k-1, choose the example that is furthest from already chosen centroids
+        for(int i = 0; i < k-1 ;i++){
+            
         }
     }
 
@@ -189,6 +212,14 @@ public class KMeans implements Classifier{
      */
     public void chooseDistance(int distChoice){
         this.distChoice = distChoice;
+    }
+
+    /**
+     * Choose type of initalization for centroids
+     * @param initChoice choice of initalization
+     */
+    public void chooseInitialize(int initChoice){
+        this.initChoice = initChoice;
     }
 
     /**
@@ -308,7 +339,7 @@ public class KMeans implements Classifier{
     /**
      * EVALUATION FUNCTION
      * For a given centroid and labeled data, evaluates entropy of the cluster
-     * Entropy is a measure of disorder/randomness, lower is better for us
+     * Entropy is a measure of disorder/randomness, lower is better here
      * Assumes labeled data
      * @param curCentroid
      * @return entropy for given centroid
@@ -398,7 +429,7 @@ public class KMeans implements Classifier{
         for(int i=0;i<curPoints.size();i++){
             if(distChoice == EUCLIDEAN_DIST){
                 intraDist += euclideanDist(curPoints.get(i), curExample);
-            }else{
+            }else if (distChoice == COSINE_DIST){
                 intraDist += cosineDistance(curPoints.get(i), curExample);
             }
         }
@@ -409,7 +440,7 @@ public class KMeans implements Classifier{
         for(int i=0;i<nextNearestPoints.size();i++){
             if(distChoice == EUCLIDEAN_DIST){
                 intraDist += euclideanDist(nextNearestPoints.get(i), curExample);
-            }else{
+            }else if (distChoice == COSINE_DIST){
                 intraDist += cosineDistance(nextNearestPoints.get(i), curExample);
             }
         }
@@ -439,6 +470,7 @@ public class KMeans implements Classifier{
     }
 
     /**
+     * EVALUATION FUNCTION
      * Evaluate Silhouette Score for all centroids
      * @return model total Silhouette Score
      */
