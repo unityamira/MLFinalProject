@@ -3,7 +3,7 @@ package ml.classifiers;
 import java.util.*;
 import ml.data.*;
 
-public class KMeans{
+public class KMeans implements Classifier{
     private int k;
     private int iterations;
     private int distChoice;
@@ -89,6 +89,7 @@ public class KMeans{
 
         for(int i=0;i<k;i++){
             Centroid curCentroid = new Centroid();
+            curCentroid.setLabel(i);
             // for each feature, randomly assign within training range
             for(Integer feature : data.getAllFeatureIndices()){
                 double featureValue = Math.random() * (featureMaxes.get(feature)-featureMins.get(feature)) + featureMins.get(feature);
@@ -241,13 +242,13 @@ public class KMeans{
             }
         }
 
-        for(Double value : labelProportions.values()){
-            if(value/curPoints.size() > majority){
-                majority = value/curPoints.size();
+        for(Double curProportion : labelProportions.values()){
+            if(curProportion > majority){
+                majority = curProportion;
             }
         }
 
-        return majority;
+        return majority/curPoints.size();
     }
 
     /**
@@ -266,7 +267,9 @@ public class KMeans{
 
     /**
      * Evaluation Function
-     * For a given centroid, evaluates entropy of the cluster
+     * For a given centroid and labeled data, evaluates entropy of the cluster
+     * Entropy is a measure of disorder/randomness, lower is better for us
+     * Assumes labeled data
      * @param curCentroid
      * @return entropy for given centroid
      */
@@ -295,6 +298,7 @@ public class KMeans{
     /**
      * Evaluation Function
      * Find the average entropy across all centroids in model
+     * Assumes labeled data
      * @return entropy across total model
      */
     public double averageEntropy(){
@@ -304,5 +308,23 @@ public class KMeans{
         }
 
         return average/centroids.size();
+    }
+
+    @Override
+    public double classify(Example example) {
+        return nearestCentroid(example).getLabel();
+    }
+
+    @Override
+    public double confidence(Example example) {
+        double curDistance = 0;
+
+        if(this.distChoice == COSINE_DIST){
+            curDistance = cosineDistance(example, nearestCentroid(example));
+        }else{
+            curDistance = euclideanDist(example, nearestCentroid(example));
+        }
+
+        return curDistance;
     }
 }
