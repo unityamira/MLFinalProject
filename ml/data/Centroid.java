@@ -12,6 +12,10 @@ public class Centroid extends Example{
         this.associatedExamples = associatedExamples;
     }
 
+    public Centroid(Example firstCenter) {
+        super(firstCenter);
+    }
+
     public void addExample(Example e){
         associatedExamples.add(e);
     }

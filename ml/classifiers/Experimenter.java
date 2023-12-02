@@ -54,8 +54,13 @@ public class Experimenter {
         DataSet wineDataSet = new DataSet("data/wines.train", DataSet.TEXTFILE);
         DataSet simpleDataSet = new DataSet("data/simple.csv", DataSet.CSVFILE);
         ArrayList<Example> examples = wineDataSet.getData();
-        KMeans model = new KMeans(10);
-        model.train(wineDataSet);
+
+        for(int i=2;i<20;i++){
+            KMeans model = new KMeans(i);
+            model.train(wineDataSet);
+            System.out.println(model.averageScore(4));
+        }
+        
 
         // purity of clusters, entropy
         // sum of squared error/elbow method for number of clusters

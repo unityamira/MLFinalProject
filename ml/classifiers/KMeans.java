@@ -10,6 +10,7 @@ public class KMeans implements Classifier{
     private int distChoice;
     private int initChoice;
     private DataSet data;
+    private Random rand;
 
     ArrayList<Centroid> centroids;
     ArrayList<Example> examples;
@@ -20,9 +21,15 @@ public class KMeans implements Classifier{
     public static final int EUCLIDEAN_DIST = 1;
 
     public static final int RANDOM_INIT = 0;
-    public static final int FURTHEST_CENT_INIT = 1;
+    public static final int FARTHEST_CENT_INIT = 1;
+
+    public static final int ENTROPY = 0;
+    public static final int PURITY = 1;
+    public static final int SSE = 2;
+    public static final int SILOUETTE = 3;
 
     public KMeans(int k){
+        this.rand = new Random();
         this.k = k;
         this.iterations = 50;
         this.distChoice = EUCLIDEAN_DIST;
@@ -39,8 +46,8 @@ public class KMeans implements Classifier{
 
         if(initChoice == RANDOM_INIT){
             this.initalizeRandom();
-        }else if(initChoice == FURTHEST_CENT_INIT){
-            this.initalizeFurthest();
+        }else if(initChoice == FARTHEST_CENT_INIT){
+            this.initalizeFarthest();
         }
         
 
@@ -62,7 +69,7 @@ public class KMeans implements Classifier{
                 this.recalculateCentroid(centroids.get(i));
             }
 
-            System.out.println("Iteration");
+            //System.out.println("Iteration");
         }
     }
 
@@ -136,15 +143,50 @@ public class KMeans implements Classifier{
     }
 
     /**
-     * Initalizes k centroids using furthest centers heuristic
+     * Initalizes k centroids using farthest centers heuristic
+     * Also know as Kmeans++
      */
-    public void initalizeFurthest(){
+    private void initalizeFarthest(){
         // choose random point 
+        Example firstCenter = examples.get(this.rand.nextInt(examples.size()));
+        Centroid curCentroid = new Centroid(firstCenter);
+        curCentroid.setLabel(0);
+        centroids.add(curCentroid);
 
-        // for k-1, choose the example that is furthest from already chosen centroids
+        // for k-1, choose the example that is farthest from already chosen centroids
         for(int i = 0; i < k-1 ;i++){
-
+            Centroid nextCentroid = new Centroid(examples.get(findFarthestPoint()));
+            nextCentroid.setLabel(i+1);
+            centroids.add(nextCentroid);
         }
+    }
+
+    /**
+     * For currently set centroids, find the point farthest from all centroids
+     */
+    private int findFarthestPoint(){
+        int maxIndex = 0;
+        double curMax = 0;
+
+        for(int j=0;j<examples.size();j++){
+            Example curExample = examples.get(j);
+            double d = Double.MAX_VALUE;
+
+            for(int cid = 0;cid < centroids.size();cid++){
+                if(distChoice == EUCLIDEAN_DIST){
+                    d = Math.min(d, euclideanDist(centroids.get(cid), curExample));
+                }else if(distChoice == COSINE_DIST){
+                    d = Math.min(d, cosineDistance(centroids.get(cid), curExample));
+                }
+            }
+
+            if(d > curMax){
+                curMax = d;
+                maxIndex = j;
+            }
+        }   
+        
+        return maxIndex;
     }
 
     /**
@@ -427,22 +469,23 @@ public class KMeans implements Classifier{
     }
 
     /**
+     * EVALUATION FUNCTION
      * Returns average model score for chosen evaluation criteria
      * @param scoreChoice Choice of evaluation Criteria
      */
     public double averageScore(int scoreChoice){
         double average = 0.0;
         for(int i=0;i<centroids.size();i++){
-            if(scoreChoice == 1){
+            if(scoreChoice == SILOUETTE){
                 // Silhouette Score
                 average += centroidSilhouette(centroids.get(i));
-            }else if(scoreChoice == 2){
+            }else if(scoreChoice == SSE){
                 // Sum of Squared Error
                 average += centroidSSE(centroids.get(i));
-            }else if(scoreChoice == 3){
+            }else if(scoreChoice == ENTROPY){
                 // Entropy
                 average += centroidEntropy(centroids.get(i));
-            }else if(scoreChoice == 4){
+            }else if(scoreChoice == PURITY){
                 // Purity
                 average += centroidPurity(centroids.get(i));
             }     
