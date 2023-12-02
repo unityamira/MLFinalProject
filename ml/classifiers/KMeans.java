@@ -143,7 +143,7 @@ public class KMeans implements Classifier{
 
         // for k-1, choose the example that is furthest from already chosen centroids
         for(int i = 0; i < k-1 ;i++){
-            
+
         }
     }
 
@@ -324,20 +324,6 @@ public class KMeans implements Classifier{
 
     /**
      * EVALUATION FUNCTION
-     * Find the average purity across all centroids in model
-     * @return average purity of whole model
-     */
-    public double averagePurity(){
-        double average = 0.0;
-        for(int i=0;i<centroids.size();i++){
-            average += centroidPurity(centroids.get(i));
-        }
-
-        return average/centroids.size();
-    }
-
-    /**
-     * EVALUATION FUNCTION
      * For a given centroid and labeled data, evaluates entropy of the cluster
      * Entropy is a measure of disorder/randomness, lower is better here
      * Assumes labeled data
@@ -368,21 +354,6 @@ public class KMeans implements Classifier{
 
     /**
      * EVALUATION FUNCTION
-     * Find the average entropy across all centroids in model
-     * Assumes labeled data
-     * @return entropy across total model
-     */
-    public double averageEntropy(){
-        double average = 0.0;
-        for(int i=0;i<centroids.size();i++){
-            average += centroidEntropy(centroids.get(i));
-        }
-
-        return average/centroids.size();
-    }
-
-    /**
-     * EVALUATION FUNCTION
      * For a particular centroid, calculate the distance of all points from the center, SSE
      * @param curCentroid
      * @return
@@ -399,20 +370,6 @@ public class KMeans implements Classifier{
             }
         }
         return sse;
-    }
-
-    /**
-     * EVALUATION FUNCTION
-     * Calculate average SSE for all centroids
-     * @return mean SSE for entire model
-     */
-    public double averageSSE(){
-        double average = 0.0;
-        for(int i=0;i<centroids.size();i++){
-            average += centroidSSE(centroids.get(i));
-        }
-
-        return average/centroids.size();
     }
 
     /**
@@ -470,14 +427,25 @@ public class KMeans implements Classifier{
     }
 
     /**
-     * EVALUATION FUNCTION
-     * Evaluate Silhouette Score for all centroids
-     * @return model total Silhouette Score
+     * Returns average model score for chosen evaluation criteria
+     * @param scoreChoice Choice of evaluation Criteria
      */
-    public double averageSilhouetteScore(){
+    public double averageScore(int scoreChoice){
         double average = 0.0;
         for(int i=0;i<centroids.size();i++){
-            average += centroidSilhouette(centroids.get(i));
+            if(scoreChoice == 1){
+                // Silhouette Score
+                average += centroidSilhouette(centroids.get(i));
+            }else if(scoreChoice == 2){
+                // Sum of Squared Error
+                average += centroidSSE(centroids.get(i));
+            }else if(scoreChoice == 3){
+                // Entropy
+                average += centroidEntropy(centroids.get(i));
+            }else if(scoreChoice == 4){
+                // Purity
+                average += centroidPurity(centroids.get(i));
+            }     
         }
 
         return average/centroids.size();
