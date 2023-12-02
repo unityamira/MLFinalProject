@@ -54,7 +54,7 @@ public class Experimenter {
         DataSet wineDataSet = new DataSet("data/wines.train", DataSet.TEXTFILE);
         DataSet simpleDataSet = new DataSet("data/simple.csv", DataSet.CSVFILE);
         ArrayList<Example> examples = wineDataSet.getData();
-        KMeans model = new KMeans(3);
+        KMeans model = new KMeans(10);
         model.train(wineDataSet);
 
         // purity of clusters, entropy
