@@ -22,6 +22,7 @@ public class KMeans implements Classifier{
 
     public static final int RANDOM_INIT = 0;
     public static final int FARTHEST_CENT_INIT = 1;
+    public static final int PLUSPLUS = 2;
 
     public static final int ENTROPY = 0;
     public static final int PURITY = 1;
@@ -48,6 +49,8 @@ public class KMeans implements Classifier{
             this.initalizeRandom();
         }else if(initChoice == FARTHEST_CENT_INIT){
             this.initalizeFarthest();
+        }else if(initChoice == PLUSPLUS){
+            this.initalizePlusPlus();
         }
         
 
@@ -165,8 +168,7 @@ public class KMeans implements Classifier{
      * For currently set centroids, find the point farthest from all centroids
      */
     private int findFarthestPoint(){
-        int maxIndex = 0;
-        double curMax = 0;
+        int maxIndex = 0; double curMax = 0;
 
         for(int j=0;j<examples.size();j++){
             Example curExample = examples.get(j);
