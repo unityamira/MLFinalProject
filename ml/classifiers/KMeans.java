@@ -49,8 +49,6 @@ public class KMeans implements Classifier{
             this.initalizeRandom();
         }else if(initChoice == FARTHEST_CENT_INIT){
             this.initalizeFarthest();
-        }else if(initChoice == PLUSPLUS){
-            this.initalizePlusPlus();
         }
         
 
