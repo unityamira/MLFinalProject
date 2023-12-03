@@ -14,6 +14,7 @@ public class Centroid extends Example{
 
     public Centroid(Example firstCenter) {
         super(firstCenter);
+        associatedExamples = new ArrayList<>();
     }
 
     public void addExample(Example e){

@@ -171,8 +171,10 @@ public class KMeans implements Classifier{
 
         // for k-1, choose the example that is farthest from already chosen centroids
         for(int i = 0; i < k-1 ;i++){
+            
             Centroid nextCentroid = new Centroid(examples.get(findFarthestPoint()));
             nextCentroid.setLabel(i+1);
+            System.out.println(nextCentroid);
             centroids.add(nextCentroid);
         }
     }

@@ -49,9 +49,10 @@ public class Experimenter {
         DataSet simpleDataSet = new DataSet("data/simple.csv", DataSet.CSVFILE);
         ArrayList<Example> examples = wineDataSet.getData();
 
-        for(int i=2;i<20;i++){
+        for(int i=3;i<20;i++){
             KMeans model = new KMeans(i);
             model.chooseDistance(0);
+            model.chooseInitialize(model.FARTHEST_CENT_INIT);
             model.train(wineDataSet);
             System.out.println(model.averageScore(3));
         }
