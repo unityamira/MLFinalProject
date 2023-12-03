@@ -3,17 +3,21 @@ package ml.utils;
 import ml.data.Centroid;
 
 public class CentroidDist implements Comparable<CentroidDist>{
-    protected Centroid centroid;
-    protected double distance;
+    private Centroid centroid;
+    private double distance;
 
     public CentroidDist(Centroid centroid, double distance){
         this.centroid = centroid;
         this.distance = distance;
     }
 
-    public double getDistance(){ return distance; }
+    public double getDistance(){ 
+        return distance; 
+    }
 
-    public Centroid getCentroid(){ return centroid; }
+    public Centroid getCentroid(){ 
+        return centroid; 
+    }
 
     @Override
     public int compareTo(CentroidDist newCentroid) {

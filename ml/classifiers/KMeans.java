@@ -70,7 +70,7 @@ public class KMeans implements Classifier{
                 this.recalculateCentroid(centroids.get(i));
             }
 
-            //System.out.println("Iteration");
+            //#endregionSystem.out.println("Iteration");
         }
     }
 
@@ -108,18 +108,33 @@ public class KMeans implements Classifier{
      * @return 2nd nearest centroid
      */
     private Centroid nextNearestCentroid(Example e){
-        ArrayList<CentroidDist> curList = new ArrayList<>();
+        Centroid first = new Centroid();
+        Centroid second = new Centroid();
+
+        double min = Double.MAX_VALUE;
+        double secMin = Double.MAX_VALUE;
 
         for (Centroid curCentroid : centroids) {
+            double curDist = 0;
             if(distChoice == COSINE_DIST){
-                curList.add(new CentroidDist(curCentroid, cosineDistance(e, curCentroid)));
+                curDist = cosineDistance(e, curCentroid);
             }else if(distChoice == EUCLIDEAN_DIST){
-                curList.add(new CentroidDist(curCentroid, euclideanDist(e, curCentroid)));
+                curDist = euclideanDist(e, curCentroid);
+            }
+
+            if(curDist < min){
+                secMin = min;
+                second = first;
+
+                first = curCentroid;
+                min = curDist;
+            }else if(curDist < secMin){
+                second = curCentroid;
+                secMin = curDist;
             }
         }
-
-        curList.sort(null);
-        return curList.get(1).getCentroid();
+        
+        return second;
     }
 
     /**
@@ -433,7 +448,7 @@ public class KMeans implements Classifier{
             }
         }
 
-        Centroid nextNearest = this.nextNearestCentroid(curExample);
+        Centroid nextNearest = nextNearestCentroid(curExample);
         ArrayList<Example> nextNearestPoints = nextNearest.getAssociatedPoints();
 
         for(int i=0;i<nextNearestPoints.size();i++){

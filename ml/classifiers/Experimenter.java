@@ -1,18 +1,12 @@
 package ml.classifiers;
 
-import java.util.ArrayList;
-import java.util.Random;
-
-import ml.data.DataSet;
-import ml.data.Example;
+import java.util.*;
+import ml.data.*;
 
 public class Experimenter {
     public static void main(String[] args){
         /*
         Random rand = new Random();
-
-        
-        
 
         Example e1 = simpleDataSet.getData().get(0);
         Example e2 = simpleDataSet.getData().get(1);
@@ -57,11 +51,11 @@ public class Experimenter {
 
         for(int i=2;i<20;i++){
             KMeans model = new KMeans(i);
+            model.chooseDistance(0);
             model.train(wineDataSet);
-            System.out.println(model.averageScore(4));
+            System.out.println(model.averageScore(3));
         }
         
-
         // purity of clusters, entropy
         // sum of squared error/elbow method for number of clusters
         // internal similarity
