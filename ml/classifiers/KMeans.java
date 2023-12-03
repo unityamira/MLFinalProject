@@ -455,16 +455,20 @@ public class KMeans implements Classifier{
 
         for(int i=0;i<nextNearestPoints.size();i++){
             if(distChoice == EUCLIDEAN_DIST){
-                intraDist += euclideanDist(nextNearestPoints.get(i), curExample);
+                interDist += euclideanDist(nextNearestPoints.get(i), curExample);
             }else if (distChoice == COSINE_DIST){
-                intraDist += cosineDistance(nextNearestPoints.get(i), curExample);
-            }
+                interDist += cosineDistance(nextNearestPoints.get(i), curExample);
+           }
         }
-
+        
         intraDist /= curPoints.size();
-        interDist /= curPoints.size();
+        interDist /= nextNearestPoints.size();
+        //System.out.println(intraDist);
+        //System.out.println(interDist);
 
-        return (interDist - intraDist) / Math.max(intraDist, interDist);
+        double res = (interDist - intraDist) / Math.max(intraDist, interDist);
+
+        return res;
     }
 
     /**

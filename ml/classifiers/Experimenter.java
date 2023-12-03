@@ -45,6 +45,7 @@ public class Experimenter {
         }
         */
 
+        /*
         DataSet wineDataSet = new DataSet("data/wines.train", DataSet.TEXTFILE);
         DataSet simpleDataSet = new DataSet("data/simple.csv", DataSet.CSVFILE);
         ArrayList<Example> examples = wineDataSet.getData();
@@ -56,11 +57,18 @@ public class Experimenter {
             model.train(wineDataSet);
             System.out.println(model.averageScore(3));
         }
+        */
         
         // purity of clusters, entropy
         // sum of squared error/elbow method for number of clusters
         // internal similarity
         // finding the best k
         // add the furthest centers heuristic
+
+        DataSet simpleDataSet = new DataSet("data/test_data.csv", DataSet.CSVFILE);
+
+        KMeans model = new KMeans(7);
+        model.train(simpleDataSet);
+        System.out.println(model.averageScore(3));
     }
 }
