@@ -2,7 +2,6 @@ package ml.classifiers;
 
 import java.util.*;
 import ml.data.*;
-import ml.utils.CentroidDist;
 
 public class KMeans implements Classifier{
     private int k;
@@ -51,7 +50,6 @@ public class KMeans implements Classifier{
             this.initalizeFarthest();
         }
         
-
         for(int iteration=0;iteration<iterations;iteration++){
             // wipe the slate clean
             Collections.shuffle(examples);
@@ -70,7 +68,7 @@ public class KMeans implements Classifier{
                 this.recalculateCentroid(centroids.get(i));
             }
 
-            //#endregionSystem.out.println("Iteration");
+            //System.out.println("Iteration");
         }
     }
 
@@ -251,15 +249,10 @@ public class KMeans implements Classifier{
         }
 
         // for all features, divide by the number of points
+        // set each centroid feature to be the average
         for(Integer feature : data.getAllFeatureIndices()){
             if(averages.containsKey(feature)){
                 averages.put(feature, averages.get(feature)/points.size());
-            }
-        }
-
-        // set each centroid feature to be the average
-        for(Integer feature: curCentroid.getFeatureSet()){
-            if(averages.containsKey(feature)){
                 curCentroid.setFeature(feature, averages.get(feature));
             }
         }
@@ -423,9 +416,9 @@ public class KMeans implements Classifier{
 
         for(int i=0; i<curPoints.size(); i++){
             if(distChoice == COSINE_DIST){
-                sse += this.cosineDistance(curPoints.get(i), curCentroid);
+                sse += Math.pow(this.cosineDistance(curPoints.get(i), curCentroid), 2);
             }else{
-                sse += this.euclideanDist(curPoints.get(i), curCentroid);
+                sse += Math.pow(this.euclideanDist(curPoints.get(i), curCentroid), 2);
             }
         }
         return sse;
@@ -509,7 +502,7 @@ public class KMeans implements Classifier{
             }else if(scoreChoice == PURITY){
                 // Purity
                 average += centroidPurity(centroids.get(i));
-            }     
+            }
         }
 
         return average/centroids.size();

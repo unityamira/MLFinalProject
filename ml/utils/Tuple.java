@@ -1,7 +1,7 @@
 package ml.utils;
-
 import ml.data.Centroid;
 
+/*
 public class CentroidDist implements Comparable<CentroidDist>{
     protected Centroid centroid;
     protected double label;
@@ -24,3 +24,5 @@ public class CentroidDist implements Comparable<CentroidDist>{
         return (dist1 < dist2) ? -1: ((dist1==dist2) ? 0 :1);
     }
 }
+
+*/
