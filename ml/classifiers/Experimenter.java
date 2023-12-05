@@ -55,13 +55,17 @@ public class Experimenter {
             System.out.println(model.averageScore(model.SILOUETTE));
         }
         */
-        DataSet simpleDataSet = new DataSet("data/test_data.csv", DataSet.CSVFILE);
 
+        DataSet simpleDataSet = new DataSet("data/test_data.csv", DataSet.CSVFILE);
+        DataSet wineDataSet2 = new DataSet("data/wine.csv", DataSet.CSVFILE);
+        DataSet titanticDataSet = new DataSet("data/titanic-train.real.csv", DataSet.CSVFILE);
+        
         for(int i=2;i<20;i++){
             KMeans model = new KMeans(i);
-            model.train(simpleDataSet);
-            System.out.println(model.averageScore(model.SSE));
+            model.train(wineDataSet2);
+            System.out.println(model.averageScore(model.SILOUETTE));
         }
+        
         
         /*
         DataSet simpleDataSet = new DataSet("data/test_data.csv", DataSet.CSVFILE);

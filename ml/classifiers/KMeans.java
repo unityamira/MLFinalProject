@@ -30,7 +30,7 @@ public class KMeans implements Classifier{
     public KMeans(int k){
         this.rand = new Random();
         this.k = k;
-        this.iterations = 50;
+        this.iterations = 1;
         this.distChoice = EUCLIDEAN_DIST;
         this.initChoice = RANDOM_INIT;
         this.centroids = new ArrayList<>();
@@ -54,7 +54,7 @@ public class KMeans implements Classifier{
             Collections.shuffle(examples);
             for(int i=0;i<centroids.size();i++){
                 centroids.get(i).clearExamples();
-            }
+            }            
 
             // assign points to nearest center
             for(int i=0;i<examples.size();i++){
@@ -74,6 +74,8 @@ public class KMeans implements Classifier{
                 System.out.println(centroids.get(i).getAssociatedPoints().size());
             }
             */
+
+            //System.out.println(averageScore(SSE));
         }
     }
 
@@ -313,7 +315,7 @@ public class KMeans implements Classifier{
             if(e1.getFeatureSet().contains(feature)){
                 v1 = e1.getFeature(feature);
             }
-            
+
             if(e2.getFeatureSet().contains(feature)){
                 v2 = e2.getFeature(feature);
             }
@@ -367,7 +369,7 @@ public class KMeans implements Classifier{
 
         if(this.distChoice == COSINE_DIST){
             curDistance = cosineDistance(example, nearestCentroid(example));
-        }else{
+        }else if(distChoice == EUCLIDEAN_DIST){
             curDistance = euclideanDist(example, nearestCentroid(example));
         }
 
@@ -447,7 +449,7 @@ public class KMeans implements Classifier{
         for(int i=0; i<curPoints.size(); i++){
             if(distChoice == COSINE_DIST){
                 sse += Math.pow(this.cosineDistance(curPoints.get(i), curCentroid), 2);
-            }else{
+            }else if(distChoice == EUCLIDEAN_DIST){
                 sse += Math.pow(this.euclideanDist(curPoints.get(i), curCentroid), 2);
             }
         }
