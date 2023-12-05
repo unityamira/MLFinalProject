@@ -21,7 +21,6 @@ public class KMeans implements Classifier{
 
     public static final int RANDOM_INIT = 0;
     public static final int FARTHEST_CENT_INIT = 1;
-    public static final int PLUSPLUS = 2;
 
     public static final int ENTROPY = 0;
     public static final int PURITY = 1;
@@ -68,11 +67,13 @@ public class KMeans implements Classifier{
                 this.recalculateCentroid(centroids.get(i));
             }
 
+            /*
             System.out.println("Iteration");
             for(int i=0;i<centroids.size();i++){
                 System.out.println(centroids.get(i));
                 System.out.println(centroids.get(i).getAssociatedPoints().size());
-            }   
+            }
+            */
         }
     }
 
@@ -305,12 +306,19 @@ public class KMeans implements Classifier{
     public double euclideanDist(Example e1, Example e2){
         double sum = 0;
 
-        for (Integer feature : e1.getFeatureSet()) {
-            if(e1.getFeatureSet().contains(feature) && e2.getFeatureSet().contains(feature)){
-                Double v1 = e1.getFeature(feature);
-                Double v2 = e2.getFeature(feature);
-                sum += Math.pow(v1 - v2, 2);
+        for(Integer feature : data.getAllFeatureIndices()){
+            Double v1 = 0.0;
+            Double v2 = 0.0;
+
+            if(e1.getFeatureSet().contains(feature)){
+                v1 = e1.getFeature(feature);
             }
+            
+            if(e2.getFeatureSet().contains(feature)){
+                v2 = e2.getFeature(feature);
+            }
+
+            sum += Math.pow(v1 - v2, 2);
         }
 
         return Math.sqrt(sum);
@@ -373,7 +381,7 @@ public class KMeans implements Classifier{
      * @param curCentroid
      * @return proportion of the biggest label in cluster
      */
-    public double centroidPurity(Centroid curCentroid){
+    private double centroidPurity(Centroid curCentroid){
         HashMap<Double, Double> labelProportions = new HashMap<>();
         ArrayList<Example> curPoints = curCentroid.getAssociatedPoints();
         double majority = 0.0;
@@ -404,7 +412,7 @@ public class KMeans implements Classifier{
      * @param curCentroid
      * @return entropy for given centroid
      */
-    public double centroidEntropy(Centroid curCentroid){
+    private double centroidEntropy(Centroid curCentroid){
         HashMap<Double, Double> labelProportions = new HashMap<>();
         ArrayList<Example> curPoints = curCentroid.getAssociatedPoints();
         double entropy = 0.0;
@@ -432,7 +440,7 @@ public class KMeans implements Classifier{
      * @param curCentroid
      * @return
      */
-    public double centroidSSE(Centroid curCentroid){
+    private double centroidSSE(Centroid curCentroid){
         ArrayList<Example> curPoints = curCentroid.getAssociatedPoints();
         double sse = 0.0;
 
@@ -493,7 +501,7 @@ public class KMeans implements Classifier{
      * @param curCentroid centroid in question
      * @return silhouette score for centroid
      */
-    public double centroidSilhouette(Centroid curCentroid){
+    private double centroidSilhouette(Centroid curCentroid){
         ArrayList<Example> curPoints = curCentroid.getAssociatedPoints();
         double silhouetteScore = 0.0;
 
