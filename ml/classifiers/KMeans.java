@@ -275,6 +275,14 @@ public class KMeans implements Classifier{
     }
 
     /**
+     * Choose number of iterations
+     * @param iterations 
+     */
+    public void chooseIterations(int iterations){
+        this.iterations = iterations;
+    }
+
+    /**
      * For two examples, calculates the Euclidean Distance between them
      * @param e1
      * @param e2
