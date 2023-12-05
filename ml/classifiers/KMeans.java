@@ -68,7 +68,11 @@ public class KMeans implements Classifier{
                 this.recalculateCentroid(centroids.get(i));
             }
 
-            //System.out.println("Iteration");
+            System.out.println("Iteration");
+            for(int i=0;i<centroids.size();i++){
+                System.out.println(centroids.get(i));
+                System.out.println(centroids.get(i).getAssociatedPoints().size());
+            }   
         }
     }
 
@@ -140,10 +144,19 @@ public class KMeans implements Classifier{
      */
     public void initalizeRandom(){
         this.findFeatureRange();
+        HashSet<Integer> indices = new HashSet<>();
 
         for(int i=0;i<k;i++){
-            Centroid curCentroid = new Centroid();
+            int newIdx =  rand.nextInt(examples.size());
+            if(indices.contains(newIdx)){
+                k-=1;
+            }
+
+            Centroid curCentroid = new Centroid(examples.get(newIdx));
             curCentroid.setLabel(i);
+            indices.add(newIdx);
+
+            /*
             // for each feature, randomly assign within training range
             for(Integer feature : data.getAllFeatureIndices()){
                 double featureValue = Math.random() * (featureMaxes.get(feature)-featureMins.get(feature)) + featureMins.get(feature);
@@ -151,6 +164,7 @@ public class KMeans implements Classifier{
                     curCentroid.addFeature(feature, featureValue);
                 }  
             }
+            */
 
             centroids.add(curCentroid);
         }
@@ -172,7 +186,7 @@ public class KMeans implements Classifier{
             
             Centroid nextCentroid = new Centroid(examples.get(findFarthestPoint()));
             nextCentroid.setLabel(i+1);
-            System.out.println(nextCentroid);
+            //System.out.println(nextCentroid);
             centroids.add(nextCentroid);
         }
     }

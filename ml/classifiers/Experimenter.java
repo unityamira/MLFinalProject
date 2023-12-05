@@ -1,6 +1,4 @@
 package ml.classifiers;
-
-import java.util.*;
 import ml.data.*;
 
 public class Experimenter {
@@ -67,7 +65,8 @@ public class Experimenter {
 
         DataSet simpleDataSet = new DataSet("data/test_data.csv", DataSet.CSVFILE);
 
-        KMeans model = new KMeans(7);
+        KMeans model = new KMeans(9);
+        //model.chooseIterations(1);
         model.train(simpleDataSet);
         System.out.println(model.averageScore(3));
     }
