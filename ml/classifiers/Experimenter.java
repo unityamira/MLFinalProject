@@ -56,9 +56,9 @@ public class Experimenter {
         }
         */
 
-        DataSet simpleDataSet = new DataSet("data/test_data.csv", DataSet.CSVFILE);
+        //DataSet simpleDataSet = new DataSet("data/test_data.csv", DataSet.CSVFILE);
         DataSet wineDataSet2 = new DataSet("data/wine.csv", DataSet.CSVFILE);
-        DataSet titanticDataSet = new DataSet("data/titanic-train.real.csv", DataSet.CSVFILE);
+        //DataSet titanticDataSet = new DataSet("data/titanic-train.real.csv", DataSet.CSVFILE);
         
 
         for(int i=2;i<20;i++){
