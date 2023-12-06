@@ -25,7 +25,7 @@ public class KMeans implements Classifier{
     public static final int ENTROPY = 0;
     public static final int PURITY = 1;
     public static final int SSE = 2;
-    public static final int SILOUETTE = 3;
+    public static final int SILHOUETTE = 3;
 
     public KMeans(int k){
         this.rand = new Random();
@@ -150,14 +150,15 @@ public class KMeans implements Classifier{
         HashSet<Integer> indices = new HashSet<>();
 
         for(int i=0;i<k;i++){
-            int newIdx =  rand.nextInt(examples.size());
+            int newIdx = rand.nextInt(examples.size());
             if(indices.contains(newIdx)){
                 k-=1;
+            }else{
+                Centroid curCentroid = new Centroid(examples.get(newIdx));
+                curCentroid.setLabel(i);
+                indices.add(newIdx);
+                centroids.add(curCentroid);
             }
-
-            Centroid curCentroid = new Centroid(examples.get(newIdx));
-            curCentroid.setLabel(i);
-            indices.add(newIdx);
 
             /*
             // for each feature, randomly assign within training range
@@ -169,7 +170,7 @@ public class KMeans implements Classifier{
             }
             */
 
-            centroids.add(curCentroid);
+            
         }
     }
 
@@ -486,7 +487,9 @@ public class KMeans implements Classifier{
            }
         }
         
+        //System.out.println(intraDist);
         intraDist /= curPoints.size();
+        //System.out.println(interDist);
         interDist /= nextNearestPoints.size();
         //System.out.println(intraDist);
         //System.out.println(interDist);
@@ -522,7 +525,7 @@ public class KMeans implements Classifier{
     public double averageScore(int scoreChoice){
         double average = 0.0;
         for(int i=0;i<centroids.size();i++){
-            if(scoreChoice == SILOUETTE){
+            if(scoreChoice == SILHOUETTE){
                 // Silhouette Score
                 average += centroidSilhouette(centroids.get(i));
             }else if(scoreChoice == SSE){

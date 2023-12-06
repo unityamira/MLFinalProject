@@ -60,10 +60,17 @@ public class Experimenter {
         DataSet wineDataSet2 = new DataSet("data/wine.csv", DataSet.CSVFILE);
         DataSet titanticDataSet = new DataSet("data/titanic-train.real.csv", DataSet.CSVFILE);
         
+
         for(int i=2;i<20;i++){
-            KMeans model = new KMeans(i);
-            model.train(wineDataSet2);
-            System.out.println(model.averageScore(model.SILOUETTE));
+            double avg = 0.0;
+            for(int j=0;j<10;j++){
+                KMeans model = new KMeans(i);
+                model.chooseInitialize(model.RANDOM_INIT);
+                model.chooseDistance(model.COSINE_DIST);
+                model.train(wineDataSet2);
+                avg += model.averageScore(model.SILHOUETTE);
+            }
+            System.out.println(avg / 10);
         }
         
         
